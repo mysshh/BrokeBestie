@@ -28,5 +28,15 @@ service cloud.firestore {
       allow update: if isSignedIn() && isOwner(existing().userId) && isOwner(incoming().userId) && isValidExpense(incoming()) && incoming().userId == existing().userId;
       allow delete: if isSignedIn() && isOwner(existing().userId);
     }
+
+    match /commitments/{commitmentId} {
+      allow list, get, create, update, delete: if isSignedIn() && request.auth.uid != null;
+    }
+    match /savingsGoals/{goalId} {
+      allow list, get, create, update, delete: if isSignedIn() && request.auth.uid != null;
+    }
+    match /subscriptions/{subscriptionId} {
+      allow list, get, create, update, delete: if isSignedIn() && request.auth.uid != null;
+    }
   }
 }

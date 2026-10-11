@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@theme {
+  --color-forest: #123D2B;
+  --color-lime: #C8F169;
+  --color-cream: #F8F6EF;
+  --color-charcoal: #202820;
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-charcoal font-sans;
+  }
+}

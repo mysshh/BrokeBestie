@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { auth } from '../lib/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { ArrowRight, Zap, Target, BarChart3, BotMessageSquare } from 'lucide-react';
 
 export default function LandingPage() {
   const signIn = async () => {
@@ -9,53 +10,74 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Background Atmosphere */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div 
-          animate={{ x: [0, 100, 0], y: [0, 50, 0] }}
-          transition={{ repeat: Infinity, duration: 10 }}
-          className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 blur-[120px] rounded-full"
-        />
-        <motion.div 
-          animate={{ x: [0, -100, 0], y: [0, -50, 0] }}
-          transition={{ repeat: Infinity, duration: 15 }}
-          className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-fuchsia-600/10 blur-[150px] rounded-full"
-        />
-      </div>
-
-      <motion.div 
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="z-10 text-center space-y-6 max-w-2xl px-4"
-      >
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="w-24 h-24 mx-auto mb-6 rounded-3xl overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.5)] border border-white/10"
-        >
-          <img src="/src/assets/images/neon_finance_logo_1783356701553.jpg" alt="Logo" className="w-full h-full object-cover" />
-        </motion.div>
-        <motion.h1 
-          whileHover={{ scale: 1.05 }}
-          className="text-6xl md:text-8xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400"
-        >
-          BrokeBestie
-        </motion.h1>
-        <p className="text-xl text-slate-400">
-          Take control of your spending with our immersive, AI-powered insights platform.
-        </p>
-        <motion.button 
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+    <div className="min-h-screen bg-cream text-charcoal">
+      {/* Navigation */}
+      <nav className="flex items-center justify-between px-8 py-6">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-forest flex items-center justify-center">
+            <span className="text-lime text-2xl font-black">B</span>
+          </div>
+          <span className="text-2xl font-black text-forest">BROKEBESTIE</span>
+        </div>
+        <button 
           onClick={signIn}
-          className="px-8 py-4 bg-purple-600 rounded-full font-bold text-lg hover:bg-purple-700 transition-all shadow-[0_0_20px_rgba(147,51,234,0.5)]"
+          className="px-6 py-2 bg-forest text-white rounded-full font-bold hover:bg-forest/90 transition-all"
         >
-          Get Started
-        </motion.button>
-      </motion.div>
+          Sign In
+        </button>
+      </nav>
+
+      {/* Hero */}
+      <header className="px-8 py-20 text-center max-w-4xl mx-auto">
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-7xl md:text-9xl font-black text-forest leading-tight"
+        >
+          Your money. Your rules.
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-2xl mt-8 text-charcoal/80"
+        >
+          No more broke surprises. Plan, test, and master your financial future before making a move.
+        </motion.p>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-12 flex gap-4 justify-center"
+        >
+          <button 
+            onClick={signIn}
+            className="px-8 py-4 bg-lime text-forest rounded-full font-black text-lg hover:scale-105 transition-all flex items-center gap-2"
+          >
+            Get Started <ArrowRight size={20} />
+          </button>
+          <button className="px-8 py-4 bg-forest text-white rounded-full font-black text-lg hover:scale-105 transition-all">
+            See How It Works
+          </button>
+        </motion.div>
+      </header>
+
+      {/* Features */}
+      <section className="px-8 py-20 bg-forest text-cream rounded-t-[3rem]">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
+          {[
+            { icon: Target, title: 'Plan Your Money', desc: 'Map out your income and expenses effortlessly.' },
+            { icon: Zap, title: 'Test Your Decisions', desc: 'See the impact of any purchase before you make it.' },
+            { icon: BarChart3, title: 'Stay Ahead', desc: 'Predict your financial health 30 days in advance.' },
+          ].map((feat, i) => (
+            <div key={i} className="p-8 bg-charcoal rounded-3xl">
+              <feat.icon className="w-12 h-12 text-lime mb-6" />
+              <h3 className="text-2xl font-bold mb-4">{feat.title}</h3>
+              <p className="text-cream/70">{feat.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
