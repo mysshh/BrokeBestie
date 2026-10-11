@@ -22,11 +22,11 @@ service cloud.firestore {
     }
 
     match /expenses/{expenseId} {
-      allow list: if isSignedIn() && request.auth.uid != null;
+      allow list: if isSignedIn();
       allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && isOwner(incoming().userId) && isValidExpense(incoming()) && isValidId(expenseId);
-      allow update: if isSignedIn() && isOwner(existing().userId) && isOwner(incoming().userId) && isValidExpense(incoming()) && incoming().userId == existing().userId;
-      allow delete: if isSignedIn() && isOwner(existing().userId);
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && isValidExpense(incoming()) && isValidId(expenseId);
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid && isValidExpense(incoming());
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
     }
 
     match /userSettings/{userId} {
@@ -34,13 +34,25 @@ service cloud.firestore {
     }
 
     match /commitments/{commitmentId} {
-      allow list, get, create, update, delete: if isSignedIn() && request.auth.uid != null;
+      allow list: if isSignedIn();
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && isValidId(commitmentId);
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
     }
     match /savingsGoals/{goalId} {
-      allow list, get, create, update, delete: if isSignedIn() && request.auth.uid != null;
+      allow list: if isSignedIn();
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && isValidId(goalId);
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
     }
     match /subscriptions/{subscriptionId} {
-      allow list, get, create, update, delete: if isSignedIn() && request.auth.uid != null;
+      allow list: if isSignedIn();
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && isValidId(subscriptionId);
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && incoming().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
     }
   }
 }

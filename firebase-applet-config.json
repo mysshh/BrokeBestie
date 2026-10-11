@@ -1,10 +1,12 @@
 {
-  "projectId": "modified-doodad-shh41",
-  "appId": "1:1063823143246:web:a620708a504f4ef232ae1f",
-  "apiKey": "AIzaSyBtrtfHWyojIEnbnA_BtWSdyGx5w_o54Nk",
-  "authDomain": "modified-doodad-shh41.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-neonfinancetrack-70f622d0-94db-4770-882e-e785b220165a",
-  "storageBucket": "modified-doodad-shh41.firebasestorage.app",
-  "messagingSenderId": "1063823143246",
-  "measurementId": ""
+  "projectId": "smurfy-smile-6p928",
+  "appId": "1:304714046798:web:3c7b73d3f036dc5e98121f",
+  "apiKey": "AIzaSyBFySiJ0NfiICT2Nh-Z70MrlE0a6ESCebE",
+  "authDomain": "smurfy-smile-6p928.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-brokebestie-8bee06df-308c-47bc-b33b-22c9173758b9",
+  "storageBucket": "smurfy-smile-6p928.firebasestorage.app",
+  "messagingSenderId": "304714046798",
+  "measurementId": "",
+  "oAuthClientId": "304714046798-klknk5a19dtfu5im1aqq923dcas3s5l9.apps.googleusercontent.com",
+  "recaptchaSiteKey": ""
 }

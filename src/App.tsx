@@ -99,12 +99,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-main-bg text-text-main font-sans flex">
-      {/* Sidebar Rail */}
-      <aside className="w-20 md:w-64 flex flex-col items-center py-8 bg-sidebar-bg text-text-main z-20 flex-shrink-0 border-r border-border">
-        <div className="w-12 h-12 bg-emerald rounded-2xl flex items-center justify-center mb-12 overflow-hidden shadow-[0_0_15px_rgba(0,230,118,0.3)]">
-          <img src="/src/assets/images/neon_finance_logo_1783356701553.jpg" alt="Neon Finance" className="w-full h-full object-cover" />
+      <aside className="w-20 md:w-64 flex flex-col py-8 bg-surface-bg border-r border-forest z-20 flex-shrink-0">
+        <div className="flex items-center gap-3 px-6 mb-12">
+          <div className="w-10 h-10 bg-lime rounded-xl flex items-center justify-center">
+            <span className="text-main-bg text-2xl font-black">B</span>
+          </div>
+          <span className="hidden md:block text-xl font-black tracking-tighter">BROKEBESTIE</span>
         </div>
-        <nav className="flex flex-col gap-4 w-full px-4 flex-1">
+        <nav className="flex flex-col gap-2 w-full px-4 flex-1">
           {['dashboard', 'expenses', 'moneyPlan', 'simulator', 'reports', 'settings'].map((tab) => {
             const Icon = iconMap[tab as keyof typeof iconMap];
             return (
@@ -114,10 +116,10 @@ export default function App() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 onKeyDown={(e) => e.key === 'Enter' && setActiveTab(tab)}
-                className={`flex items-center gap-4 p-3 rounded-xl transition-all cursor-pointer ${
+                className={`flex items-center gap-4 p-4 rounded-2xl transition-all cursor-pointer ${
                   activeTab === tab
-                    ? 'bg-emerald text-main-bg font-bold shadow-[0_0_10px_rgba(0,230,118,0.2)]'
-                    : 'text-text-secondary hover:text-text-main hover:bg-card-bg'
+                    ? 'bg-lime text-main-bg font-bold'
+                    : 'text-text-secondary hover:text-text-main hover:bg-forest'
                 }`}
               >
                 <Icon className="w-6 h-6" />
@@ -133,82 +135,47 @@ export default function App() {
         {/* Header Section */}
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-black text-text-main tracking-tight">
-              Hey, <span className="text-emerald">Bestie!</span> 👋
+            <h1 className="text-4xl font-black tracking-tighter">
+              Hey, <span className="text-lime">Bestie!</span> 👋
             </h1>
-            <p className="text-text-secondary text-sm mt-1">Ready to crush those goals?</p>
+            <p className="text-text-secondary text-lg mt-1">Ready to crush those goals?</p>
           </div>
           <div className="flex items-center gap-4">
-            <div 
-              role="button"
-              onClick={() => {}}
-              className="flex items-center gap-2 px-4 py-2 bg-card-bg rounded-full font-bold border border-border hover:bg-elevated-card-bg transition-all cursor-pointer"
-            >
-              <HelpCircle className="w-5 h-5 text-emerald" /> What If?
-            </div>
             <Auth />
-            <div className="h-10 px-4 bg-emerald rounded-full flex items-center gap-2 cursor-pointer hover:bg-emerald/90 transition-all text-main-bg font-bold shadow-[0_0_10px_rgba(0,230,118,0.2)]">
+            <div className="h-12 px-6 bg-lime rounded-full flex items-center gap-2 cursor-pointer hover:bg-lime/90 transition-all text-main-bg font-bold">
               <span>+ Add Spend</span>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <div className="flex-1 bg-card-bg border border-border rounded-3xl p-8 shadow-sm overflow-auto">
+        <div className="flex-1">
           {activeTab === 'dashboard' ? (
             <div className="space-y-8">
               <Alerts spendableBalance={spendableBalance} alertThreshold={alertThreshold} />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-6">
                   <FinancialHealth metrics={healthMetrics} />
-                  <motion.div className="bg-black/50 border border-white/10 rounded-3xl p-8">
-                    <h2 className="text-2xl font-bold mb-6 text-white">Spending Trends</h2>
+                  <div className="bg-surface-bg border border-forest rounded-3xl p-8">
+                    <h2 className="text-2xl font-bold mb-6">Spending Trends</h2>
                     <DashboardChart 
                       expenses={expenses} 
                       commitments={commitments} 
                       savingsGoals={savingsGoals} 
                       subscriptions={subscriptions} 
                     />
-                  </motion.div>
+                  </div>
                 </div>
                 <div className="space-y-6">
-                  <div className="bg-emerald/10 border border-emerald/20 p-8 rounded-3xl">
-                    <p className="text-secondary-green text-sm font-medium">Daily Allowance</p>
-                    <p className="text-5xl font-black text-text-main mt-2">₹{dailyAllowance.toFixed(0)}</p>
-                    <p className="text-text-secondary text-xs mt-2">To stay on track for the 30-day challenge.</p>
+                  <div className="bg-forest/50 border border-forest p-8 rounded-3xl">
+                    <p className="text-text-secondary text-sm font-medium">Daily Allowance</p>
+                    <p className="text-5xl font-black text-lime mt-2">₹{dailyAllowance.toFixed(0)}</p>
                   </div>
-                  <div className="bg-card-bg border border-border p-8 rounded-3xl">
-                    <p className="text-emerald text-sm font-medium">Spendable Balance</p>
-                    <p className="text-5xl font-black text-text-main mt-2">₹{spendableBalance.toFixed(0)}</p>
+                  <div className="bg-surface-bg border border-forest p-8 rounded-3xl">
+                    <p className="text-lavender text-sm font-medium">Spendable Balance</p>
+                    <p className="text-5xl font-black mt-2">₹{spendableBalance.toFixed(0)}</p>
                   </div>
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {[
-                  { title: 'Actual Expenses', value: `₹${actualExpenses.toFixed(0)}`, color: 'emerald' },
-                  { title: 'Commitments', value: `₹${(pendingCommitments + activeSubscriptions).toFixed(0)}`, color: 'lime' },
-                  { title: 'Goals', value: `₹${savingsContributions.toFixed(0)}`, color: 'emerald' },
-                  { title: 'AI Bestie Tips', value: 'Ready', color: 'secondary-green' },
-                ].map((stat, i) => {
-                  const colorMap = {
-                    emerald: 'border-emerald/30 text-text-main',
-                    lime: 'border-lime/30 text-text-main',
-                    'secondary-green': 'border-secondary-green/30 text-text-main',
-                  };
-                  return (
-                    <motion.div
-                      key={stat.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`bg-card-bg border ${colorMap[stat.color as keyof typeof colorMap]} p-6 rounded-3xl shadow-sm`}
-                    >
-                      <p className="text-text-secondary text-sm">{stat.title}</p>
-                      <p className={`text-xl font-bold mt-1`}>
-                        {stat.value}
-                      </p>
-                    </motion.div>
-                  );
-                })}
               </div>
             </div>
           ) : activeTab === 'expenses' ? (
