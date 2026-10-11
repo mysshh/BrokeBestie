@@ -1,0 +1,6 @@
+{
+  "name": "BrokeBestie",
+  "description": "A personal finance tracking application with budgeting and visual insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

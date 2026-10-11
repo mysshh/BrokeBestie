@@ -1,0 +1,25 @@
+{
+  "entities": {
+    "expense": {
+      "title": "Expense",
+      "description": "A user expense record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "date": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "amount", "category", "date", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/expenses/{expenseId}": {
+      "schema": { "$ref": "expense" },
+      "description": "User expenses collection"
+    }
+  }
+}
