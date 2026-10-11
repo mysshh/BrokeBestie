@@ -101,10 +101,7 @@ export default function App() {
     <div className="min-h-screen bg-main-bg text-text-main font-sans flex">
       <aside className="w-20 md:w-64 flex flex-col py-8 bg-surface-bg border-r border-forest z-20 flex-shrink-0">
         <div className="flex items-center gap-3 px-6 mb-12">
-          <div className="w-10 h-10 bg-lime rounded-xl flex items-center justify-center">
-            <span className="text-main-bg text-2xl font-black">B</span>
-          </div>
-          <span className="hidden md:block text-xl font-black tracking-tighter">BROKEBESTIE</span>
+          <img src="/src/assets/images/brokebestie_logo_1791720990523.jpg" alt="BrokeBestie" className="w-12 h-12 rounded-xl" />
         </div>
         <nav className="flex flex-col gap-2 w-full px-4 flex-1">
           {['dashboard', 'expenses', 'moneyPlan', 'simulator', 'reports', 'settings'].map((tab) => {

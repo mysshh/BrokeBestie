@@ -17,10 +17,7 @@ export default function LandingPage() {
       {/* Navigation */}
       <nav className="fixed w-full flex items-center justify-between px-8 py-6 z-50 bg-[#0A0B09]/80 backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-lime rounded-xl flex items-center justify-center">
-            <span className="text-[#0A0B09] text-2xl font-black">B</span>
-          </div>
-          <span className="text-2xl font-black tracking-tighter">BROKEBESTIE</span>
+          <img src="/src/assets/images/brokebestie_logo_1791720990523.jpg" alt="BrokeBestie" className="w-10 h-10 rounded-xl" />
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-text-secondary">
           <a href="#vibe" className="hover:text-lime transition-colors">The vibe</a>
