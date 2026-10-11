@@ -29,6 +29,10 @@ service cloud.firestore {
       allow delete: if isSignedIn() && isOwner(existing().userId);
     }
 
+    match /userSettings/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+    }
+
     match /commitments/{commitmentId} {
       allow list, get, create, update, delete: if isSignedIn() && request.auth.uid != null;
     }

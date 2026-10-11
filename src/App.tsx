@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { motion } from 'motion/react';
-import { LayoutDashboard, Wallet, FileText, Settings, Target, Zap, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, Wallet, FileText, Settings as SettingsIcon, Target, Zap, HelpCircle } from 'lucide-react';
 import { auth, db } from './lib/firebase';
 import Auth from './components/Auth';
 import DashboardChart from './components/DashboardChart';
@@ -14,8 +14,10 @@ import Simulator from './components/Simulator';
 import FinancialHealth from './components/FinancialHealth';
 import Reports from './components/Reports';
 import Settings from './components/Settings';
+import Alerts from './components/Alerts';
 import { Expense, Commitment, SavingsGoal, Subscription } from './types';
 import { calculateHealth } from './lib/healthEngine';
+import { calculateFinancials } from './lib/financialCalculations';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -24,6 +26,24 @@ export default function App() {
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [budget, setBudget] = useState(10000);
+  const [savingsReserve, setSavingsReserve] = useState(1000);
+  const [alertThreshold, setAlertThreshold] = useState(500);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchSettings = async () => {
+      const docRef = doc(db, 'userSettings', user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setBudget(data.budget || 10000);
+        setSavingsReserve(data.savingsReserve || 1000);
+        setAlertThreshold(data.alertThreshold || 500);
+      }
+    };
+    fetchSettings();
+  }, [user]);
 
   const iconMap = {
     dashboard: LayoutDashboard,
@@ -31,7 +51,7 @@ export default function App() {
     moneyPlan: Target,
     simulator: Zap,
     reports: FileText,
-    settings: Settings,
+    settings: SettingsIcon,
   };
   useEffect(() => {
     return onAuthStateChanged(auth, (user) => {
@@ -62,33 +82,29 @@ export default function App() {
   }, [user]);
 
   // Financial Calculations
-  const startingBalance = 10000;
-  const income = expenses.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0);
-  const expensesOnly = expenses.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0);
-  const pendingCommitments = commitments.filter(c => c.status === 'pending').reduce((sum, c) => sum + c.amount, 0);
-  const activeSubscriptions = subscriptions.filter(s => s.active).reduce((sum, s) => sum + s.cost, 0);
-  const savingsContributions = savingsGoals.reduce((sum, s) => sum + s.currentSaved, 0);
-  
-  const totalAvailable = startingBalance + income;
-  const totalDeductions = expensesOnly + pendingCommitments + activeSubscriptions + savingsContributions;
-  const remainingSpendable = totalAvailable - totalDeductions;
-  
-  const dailyAllowance = remainingSpendable / 30; // Simplified
+  const { 
+    actualExpenses, 
+    pendingCommitments, 
+    activeSubscriptions, 
+    savingsContributions, 
+    spendableBalance, 
+    dailyAllowance 
+  } = calculateFinancials(expenses, commitments, savingsGoals, subscriptions, budget, savingsReserve);
 
-  const healthMetrics = calculateHealth(expenses, commitments, savingsGoals, subscriptions, remainingSpendable, totalAvailable);
+  const healthMetrics = calculateHealth(expenses, commitments, savingsGoals, subscriptions, spendableBalance, budget + expenses.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0));
 
   if (!user) {
     return <LandingPage />;
   }
 
   return (
-    <div className="min-h-screen bg-cream text-charcoal font-sans flex">
+    <div className="min-h-screen bg-main-bg text-text-main font-sans flex">
       {/* Sidebar Rail */}
-      <aside className="w-20 flex flex-col items-center py-8 bg-forest text-cream z-10 hidden md:flex">
-        <div className="w-12 h-12 bg-lime rounded-2xl flex items-center justify-center mb-12 overflow-hidden">
+      <aside className="w-20 md:w-64 flex flex-col items-center py-8 bg-sidebar-bg text-text-main z-20 flex-shrink-0 border-r border-border">
+        <div className="w-12 h-12 bg-emerald rounded-2xl flex items-center justify-center mb-12 overflow-hidden shadow-[0_0_15px_rgba(0,230,118,0.3)]">
           <img src="/src/assets/images/neon_finance_logo_1783356701553.jpg" alt="Neon Finance" className="w-full h-full object-cover" />
         </div>
-        <nav className="flex flex-col gap-8 flex-1">
+        <nav className="flex flex-col gap-4 w-full px-4 flex-1">
           {['dashboard', 'expenses', 'moneyPlan', 'simulator', 'reports', 'settings'].map((tab) => {
             const Icon = iconMap[tab as keyof typeof iconMap];
             return (
@@ -98,13 +114,14 @@ export default function App() {
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 onKeyDown={(e) => e.key === 'Enter' && setActiveTab(tab)}
-                className={`p-3 rounded-xl transition-all cursor-pointer ${
+                className={`flex items-center gap-4 p-3 rounded-xl transition-all cursor-pointer ${
                   activeTab === tab
-                    ? 'bg-lime text-forest'
-                    : 'text-cream/60 hover:text-white'
+                    ? 'bg-emerald text-main-bg font-bold shadow-[0_0_10px_rgba(0,230,118,0.2)]'
+                    : 'text-text-secondary hover:text-text-main hover:bg-card-bg'
                 }`}
               >
                 <Icon className="w-6 h-6" />
+                <span className="hidden md:inline font-medium capitalize">{tab}</span>
               </div>
             );
           })}
@@ -116,30 +133,31 @@ export default function App() {
         {/* Header Section */}
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-black text-forest tracking-tight">
-              Hey, <span className="text-forest/70">Bestie!</span> 👋
+            <h1 className="text-3xl font-black text-text-main tracking-tight">
+              Hey, <span className="text-emerald">Bestie!</span> 👋
             </h1>
-            <p className="text-charcoal/60 text-sm mt-1">Ready to crush those goals?</p>
+            <p className="text-text-secondary text-sm mt-1">Ready to crush those goals?</p>
           </div>
           <div className="flex items-center gap-4">
             <div 
               role="button"
               onClick={() => {}}
-              className="flex items-center gap-2 px-4 py-2 bg-white rounded-full font-bold border border-charcoal/10 hover:bg-cream transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-card-bg rounded-full font-bold border border-border hover:bg-elevated-card-bg transition-all cursor-pointer"
             >
-              <HelpCircle className="w-5 h-5" /> What If?
+              <HelpCircle className="w-5 h-5 text-emerald" /> What If?
             </div>
             <Auth />
-            <div className="h-10 px-4 bg-lime rounded-full flex items-center gap-2 cursor-pointer hover:bg-lime/90 transition-all text-forest font-bold shadow-sm">
+            <div className="h-10 px-4 bg-emerald rounded-full flex items-center gap-2 cursor-pointer hover:bg-emerald/90 transition-all text-main-bg font-bold shadow-[0_0_10px_rgba(0,230,118,0.2)]">
               <span>+ Add Spend</span>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <div className="flex-1 bg-white border border-charcoal/10 rounded-3xl p-8 shadow-sm overflow-auto">
+        <div className="flex-1 bg-card-bg border border-border rounded-3xl p-8 shadow-sm overflow-auto">
           {activeTab === 'dashboard' ? (
             <div className="space-y-8">
+              <Alerts spendableBalance={spendableBalance} alertThreshold={alertThreshold} />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-6">
                   <FinancialHealth metrics={healthMetrics} />
@@ -154,38 +172,37 @@ export default function App() {
                   </motion.div>
                 </div>
                 <div className="space-y-6">
-                  <div className="bg-lime/10 border border-lime/20 p-8 rounded-3xl">
-                    <p className="text-forest/70 text-sm font-medium">Daily Allowance</p>
-                    <p className="text-5xl font-black text-forest mt-2">₹{dailyAllowance.toFixed(0)}</p>
-                    <p className="text-forest/60 text-xs mt-2">To stay on track for the 30-day challenge.</p>
+                  <div className="bg-emerald/10 border border-emerald/20 p-8 rounded-3xl">
+                    <p className="text-secondary-green text-sm font-medium">Daily Allowance</p>
+                    <p className="text-5xl font-black text-text-main mt-2">₹{dailyAllowance.toFixed(0)}</p>
+                    <p className="text-text-secondary text-xs mt-2">To stay on track for the 30-day challenge.</p>
                   </div>
-                  <div className="bg-forest p-8 rounded-3xl">
-                    <p className="text-lime text-sm font-medium">Remaining Spendable</p>
-                    <p className="text-5xl font-black text-white mt-2">₹{remainingSpendable.toFixed(0)}</p>
+                  <div className="bg-card-bg border border-border p-8 rounded-3xl">
+                    <p className="text-emerald text-sm font-medium">Spendable Balance</p>
+                    <p className="text-5xl font-black text-text-main mt-2">₹{spendableBalance.toFixed(0)}</p>
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {[
-                  { title: 'Total Expenses', value: `₹${expensesOnly.toFixed(0)}`, color: 'fuchsia' },
-                  { title: 'Commitments', value: `₹${(pendingCommitments + activeSubscriptions).toFixed(0)}`, color: 'amber' },
-                  { title: 'Goals', value: `₹${savingsContributions.toFixed(0)}`, color: 'lime' },
-                  { title: 'AI Bestie Tips', value: 'Ready', color: 'purple' },
+                  { title: 'Actual Expenses', value: `₹${actualExpenses.toFixed(0)}`, color: 'emerald' },
+                  { title: 'Commitments', value: `₹${(pendingCommitments + activeSubscriptions).toFixed(0)}`, color: 'lime' },
+                  { title: 'Goals', value: `₹${savingsContributions.toFixed(0)}`, color: 'emerald' },
+                  { title: 'AI Bestie Tips', value: 'Ready', color: 'secondary-green' },
                 ].map((stat, i) => {
                   const colorMap = {
-                    purple: 'border-forest/20 text-forest',
-                    fuchsia: 'border-lime/50 text-lime-700',
-                    amber: 'border-charcoal/10 text-charcoal',
-                    lime: 'border-lime/50 text-lime-700',
+                    emerald: 'border-emerald/30 text-text-main',
+                    lime: 'border-lime/30 text-text-main',
+                    'secondary-green': 'border-secondary-green/30 text-text-main',
                   };
                   return (
                     <motion.div
                       key={stat.title}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className={`bg-white border ${colorMap[stat.color as keyof typeof colorMap]} p-6 rounded-3xl shadow-sm`}
+                      className={`bg-card-bg border ${colorMap[stat.color as keyof typeof colorMap]} p-6 rounded-3xl shadow-sm`}
                     >
-                      <p className="text-slate-400 text-sm">{stat.title}</p>
+                      <p className="text-text-secondary text-sm">{stat.title}</p>
                       <p className={`text-xl font-bold mt-1`}>
                         {stat.value}
                       </p>
@@ -205,9 +222,20 @@ export default function App() {
           ) : activeTab === 'simulator' ? (
             <Simulator expenses={expenses} commitments={commitments} savingsGoals={savingsGoals} subscriptions={subscriptions} />
           ) : activeTab === 'reports' ? (
-            <Reports expenses={expenses} commitments={commitments} savingsGoals={savingsGoals} subscriptions={subscriptions} />
+            <Reports 
+              expenses={expenses} 
+              commitments={commitments} 
+              savingsGoals={savingsGoals} 
+              subscriptions={subscriptions} 
+              budget={budget}
+              savingsReserve={savingsReserve}
+            />
           ) : activeTab === 'settings' ? (
-            <Settings />
+            <Settings 
+              savingsGoals={savingsGoals}
+              commitments={commitments}
+              subscriptions={subscriptions}
+            />
           ) : (
             <h2 className="text-xl">Content for {activeTab} goes here...</h2>
           )}
